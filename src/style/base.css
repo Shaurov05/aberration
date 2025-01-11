@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #1a2a6c;
+  height: 100vh;
+  font-family: "Source Sans Pro";
+  letter-spacing: -0.05em;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: none;
+}
