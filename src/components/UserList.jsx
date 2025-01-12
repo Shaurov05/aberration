@@ -74,10 +74,10 @@ const UserList = ({ searchTerm = "" }) => {
         </Dropdown>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[500px]">
         <table className="min-w-full bg-white rounded-lg text-black shadow-md">
-          <thead>
-            <tr className="bg-blue-900 text-white">
+          <thead className="sticky top-0 bg-blue-900 text-white">
+            <tr>
               <th className="px-4 py-2 text-left">Full Name</th>
               <th className="px-4 py-2 text-left">Email Address</th>
               <th className="px-4 py-2 text-left">Role</th>
@@ -97,8 +97,8 @@ const UserList = ({ searchTerm = "" }) => {
                     {user?.email}
                   </a>
                 </td>
-                <td className="px-4 py-2">{user?.role}</td>
-                <td className="px-4 py-2">{user?.status}</td>
+                <td className="px-4 py-2 capitalize">{user?.role}</td>
+                <td className="px-4 py-2 capitalize">{user?.status}</td>
                 <td className="px-4 py-2 text-center space-x-2">
                   <button
                     style={{ fontFamily: "Open Sans" }}

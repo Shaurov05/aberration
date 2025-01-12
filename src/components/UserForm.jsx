@@ -70,6 +70,8 @@ const UserForm = () => {
     navigate("/user-management");
   };
 
+  console.log("selectedUser?.role: ", selectedUser?.role);
+
   return (
     <div className="flex flex-col h-screen w-screen">
       <div className="flex justify-center items-center h-full w-full">
@@ -78,7 +80,7 @@ const UserForm = () => {
           style={{ fontFamily: "Roboto" }}
         >
           <div className="flex justify-center h-9">
-            <p className="text-lg">Add User</p>
+            <p className="text-lg capitalize">{`${operation} User`}</p>
           </div>
           <Form className="text-sm" onSubmit={handleSubmit}>
             <fieldset>
@@ -93,7 +95,7 @@ const UserForm = () => {
                   id="full_name"
                   placeholder="Enter full name"
                   name="name"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   value={selectedUser?.name}
                   onChange={handleChange}
                 />
@@ -107,7 +109,7 @@ const UserForm = () => {
                   id="email"
                   placeholder="Enter email address"
                   name="email"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   value={selectedUser?.email}
                   onChange={handleChange}
                 />
@@ -124,7 +126,7 @@ const UserForm = () => {
                   id="confirm_email"
                   placeholder="Confirm email address"
                   name="confirm_email"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   onChange={handleChange}
                 />
               </Form.Group>
@@ -141,7 +143,7 @@ const UserForm = () => {
                   type="password"
                   placeholder="Enter password"
                   name="password"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   onChange={handleChange}
                 />
               </Form.Group>
@@ -158,7 +160,7 @@ const UserForm = () => {
                   placeholder="Confirm password"
                   type="password"
                   name="confirm_password"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   onChange={handleChange}
                 />
               </Form.Group>
@@ -169,7 +171,7 @@ const UserForm = () => {
                 </Form.Label>
                 <Form.Select
                   id="role"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   onChange={handleChange}
                   name="role"
                   value={selectedUser?.role}
@@ -185,13 +187,13 @@ const UserForm = () => {
                 </Form.Label>
                 <Form.Select
                   id="status"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   onChange={handleChange}
                   name="status"
                   value={selectedUser?.status}
                 >
-                  <option>Active</option>
-                  <option>Inactive</option>
+                  <option value={"active"}>Active</option>
+                  <option value={"inactive"}>Inactive</option>
                 </Form.Select>
               </Form.Group>
 
@@ -202,7 +204,7 @@ const UserForm = () => {
                 <Form.Control
                   id="phone"
                   placeholder="Enter phone number"
-                  className="rounded-3xl text-sm leading-7 text-[#94a3b8]"
+                  className="rounded-3xl text-sm text-[#94a3b8]"
                   value={selectedUser?.phone}
                   name="phone"
                   onChange={handleChange}
@@ -214,7 +216,7 @@ const UserForm = () => {
                   className="flex-1 rounded-3xl text-sm bg-[#4e54c8] h-9"
                   type="submit"
                 >
-                  Save/Add User
+                  {operation === "update" ? "Save" : "Add"} User
                 </Button>
                 <Button
                   className="flex-1 rounded-3xl text-sm bg-white text-black h-9"

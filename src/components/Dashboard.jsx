@@ -67,7 +67,7 @@ const Dashboard = () => {
             >
               <div className="mb-2">
                 <span
-                  className="text-5xl text-white cursor-pointer w-auto"
+                  className="text-4xl text-white cursor-pointer w-auto"
                   onClick={() => {
                     navigate(`/dealership/${dealership.id}/inventory`, {
                       state: { dealership },

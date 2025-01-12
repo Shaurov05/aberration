@@ -53,8 +53,8 @@ const LoginPage = () => {
 
   return (
     <div className="flex justify-center h-screen items-center form-container">
-      <div className="bg-[#a9a9a9] px-8 rounded-3xl h-[70%] w-[35%] shadow-[2px_2px_4px _gba(255, 255, 255, 0.1)]">
-        <p className="text text-[#030303] text-4xl leading-[54px] font-semibold mt-16">
+      <div className="bg-[#a9a9a9] px-8 rounded-3xl h-[75%] w-[35%] shadow-[2px_2px_4px _gba(255, 255, 255, 0.1)]">
+        <p className="text-[#030303] text-4xl leading-[54px] font-semibold mt-[64px]">
           Auto Nexus
         </p>
         <div className="form-container flex gap-4 flex-col mt-8">
@@ -95,7 +95,7 @@ const LoginPage = () => {
         >
           {isLoading ? "Logging in..." : "Log In"}
         </button>
-        <p className="text text-[#5a5959] text-lg font-light py-4">
+        <p className="text text-[#5a5959] text-lg font-light pt-4 pb-2">
           Don't have an account?
         </p>
         <button

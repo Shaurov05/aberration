@@ -10,6 +10,7 @@ const DealerData = ({ dealerName }) => {
   const [dealerDetails, setDealerDetails] = useState([]);
 
   let { dealerId, tabName } = useParams();
+
   const getDealershipDetails = useCallback(async () => {
     const data = await fetchDealerDetails(
       dealerId,
@@ -90,46 +91,55 @@ const DealerData = ({ dealerName }) => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full text-left bg-gray-800 text-white rounded-md shadow-md">
-          <thead className="bg-gray-700">
-            <tr>
-              <th className="px-4 py-2">Year</th>
-              <th className="px-4 py-2">Make</th>
-              <th className="px-4 py-2">Model</th>
-              <th className="px-4 py-2">VIN</th>
-              <th className="px-4 py-2">Trim</th>
-              <th className="px-4 py-2">Color</th>
-              <th className="px-4 py-2">Mileage</th>
-              <th className="px-4 py-2">Price</th>
-              <th className="px-4 py-2">Lending Value</th>
-              <th className="px-4 py-2">Date Added</th>
-              <th className="px-4 py-2">Days in Stock</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dealerDetails?.map((item, index) => (
-              <tr
-                key={index}
-                className={`hover:bg-gray-700 ${
-                  index % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
-                }`}
-              >
-                <td className="px-4 py-2">{item.year}</td>
-                <td className="px-4 py-2">{item.make}</td>
-                <td className="px-4 py-2">{item.model}</td>
-                <td className="px-4 py-2">{item.vin}</td>
-                <td className="px-4 py-2">{item.trim}</td>
-                <td className="px-4 py-2">{item.color}</td>
-                <td className="px-4 py-2">{item.mileage}</td>
-                <td className="px-4 py-2">{item.price}</td>
-                <td className="px-4 py-2">{item.lendingValue}</td>
-                <td className="px-4 py-2">{item.dateAdded}</td>
-                <td className="px-4 py-2">{item.dateAdded}</td>
+      <div className="relative">
+        {/* Static Table Header */}
+        <div className="overflow-hidden">
+          <table className="table-auto w-full text-left bg-gray-800 text-white rounded-md shadow-md">
+            <thead className="bg-gray-700 sticky top-0">
+              <tr>
+                <th className="px-4 py-2">Year</th>
+                <th className="px-4 py-2">Make</th>
+                <th className="px-4 py-2">Model</th>
+                <th className="px-4 py-2">VIN</th>
+                <th className="px-4 py-2">Trim</th>
+                <th className="px-4 py-2">Color</th>
+                <th className="px-4 py-2">Mileage</th>
+                <th className="px-4 py-2">Price</th>
+                <th className="px-4 py-2">Lending Value</th>
+                <th className="px-4 py-2">Date Added</th>
+                <th className="px-4 py-2">Days in Stock</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+          </table>
+        </div>
+
+        {/* Scrollable Table Body */}
+        <div className="overflow-y-auto max-h-[400px]">
+          <table className="table-auto w-full text-left bg-gray-800 text-white">
+            <tbody>
+              {dealerDetails?.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`hover:bg-gray-700 ${
+                    index % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
+                  }`}
+                >
+                  <td className="px-4 py-2">{item.year}</td>
+                  <td className="px-4 py-2">{item.make}</td>
+                  <td className="px-4 py-2">{item.model}</td>
+                  <td className="px-4 py-2">{item.vin}</td>
+                  <td className="px-4 py-2">{item.trim}</td>
+                  <td className="px-4 py-2">{item.color}</td>
+                  <td className="px-4 py-2">{item.mileage}</td>
+                  <td className="px-4 py-2">{item.price}</td>
+                  <td className="px-4 py-2">{item.lendingValue}</td>
+                  <td className="px-4 py-2">{item.dateAdded}</td>
+                  <td className="px-4 py-2">{item.daysInStock}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

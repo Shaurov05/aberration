@@ -26,11 +26,12 @@ export const login = async (email, password) => {
   }
 };
 
-export const fetchDealerships = async (query = "") => {
+export const fetchDealerships = async (page = 1, query = "") => {
   console.log("dealership list api called. query: ", query);
   if (API_BASE_URL === "https://api.example.com") {
     return {
       success: true,
+      totalPages: 2,
       dealerships: [
         {
           id: 1,
@@ -41,31 +42,47 @@ export const fetchDealerships = async (query = "") => {
         },
         {
           id: 2,
-          name: "Dealership 1",
+          name: "Dealership 2",
           inventory_count: 10,
           mtd_sold: 5,
           new_additions: 2,
         },
         {
           id: 3,
-          name: "Dealership 1",
+          name: "Dealership 3",
           inventory_count: 10,
           mtd_sold: 5,
           new_additions: 2,
         },
         {
           id: 4,
-          name: "Dealership 1",
+          name: "Dealership 4",
           inventory_count: 10,
           mtd_sold: 5,
           new_additions: 2,
         },
+        // {
+        //   id: 5,
+        //   name: "Dealership 5",
+        //   inventory_count: 10,
+        //   mtd_sold: 5,
+        //   new_additions: 2,
+        // },
+        // {
+        //   id: 6,
+        //   name: "Dealership 6",
+        //   inventory_count: 10,
+        //   mtd_sold: 5,
+        //   new_additions: 2,
+        // },
       ],
     };
   }
 
   try {
-    const response = await axios(`${API_BASE_URL}/dealerships/query=${query}`);
+    const response = await axios(
+      `${API_BASE_URL}/dealerships/?page=${page}&query=${query}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching dealerships:", error);
@@ -87,58 +104,25 @@ export const fetchDealerDetails = async (
     endDate
   );
   if (API_BASE_URL === "https://api.example.com") {
+    let dummyData = {
+      year: "2022",
+      make: "Ferrari",
+      model: "F8 Tributo",
+      vin: "F8 Tributo",
+      trim: "Base",
+      color: "Red",
+      mileage: "1,200",
+      price: "$300,000",
+      lendingValue: "$275,000",
+      dateAdded: "1",
+    };
+    let data = [];
+    for (let i = 0; i < 30; i++) {
+      data.push(dummyData);
+    }
     return {
       success: true,
-      data: [
-        {
-          year: "2022",
-          make: "Ferrari",
-          model: "F8 Tributo",
-          vin: "F8 Tributo",
-          trim: "Base",
-          color: "Red",
-          mileage: "1,200",
-          price: "$300,000",
-          lendingValue: "$275,000",
-          dateAdded: "1",
-        },
-        {
-          year: "2021",
-          make: "BMW",
-          model: "7 Series",
-          vin: "7 Series",
-          trim: "Luxury",
-          color: "Blue",
-          mileage: "15,000",
-          price: "$140,000",
-          lendingValue: "$120,000",
-          dateAdded: "2",
-        },
-        {
-          year: "2021",
-          make: "BMW",
-          model: "7 Series",
-          vin: "7 Series",
-          trim: "Luxury",
-          color: "Blue",
-          mileage: "15,000",
-          price: "$140,000",
-          lendingValue: "$120,000",
-          dateAdded: "2",
-        },
-        {
-          year: "2021",
-          make: "BMW",
-          model: "7 Series",
-          vin: "7 Series",
-          trim: "Luxury",
-          color: "Blue",
-          mileage: "15,000",
-          price: "$140,000",
-          lendingValue: "$120,000",
-          dateAdded: "2",
-        },
-      ],
+      data: data,
     };
   }
 
@@ -199,64 +183,112 @@ export const fetchUserList = async (query) => {
           id: 1,
           name: "Stephanie Johnson",
           email: "stephanie.j@example.com",
-          role: "Admin",
-          status: "Active",
+          role: "admin",
+          status: "active",
           phone: "1234567890",
         },
         {
           id: 2,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
         {
           id: 3,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
         {
           id: 4,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
         {
           id: 5,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
         {
           id: 6,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
         {
           id: 7,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
         {
           id: 8,
           name: "Michael Brown",
           email: "michael.b@example.com",
-          role: "User",
-          status: "Inactive",
+          role: "user",
+          status: "inactive",
+          phone: "1234567890",
+        },
+        {
+          id: 9,
+          name: "Michael Brown",
+          email: "michael.b@example.com",
+          role: "user",
+          status: "inactive",
+          phone: "1234567890",
+        },
+        {
+          id: 10,
+          name: "Michael Brown",
+          email: "michael.b@example.com",
+          role: "user",
+          status: "inactive",
+          phone: "1234567890",
+        },
+        {
+          id: 11,
+          name: "Michael Brown",
+          email: "michael.b@example.com",
+          role: "user",
+          status: "inactive",
+          phone: "1234567890",
+        },
+        {
+          id: 12,
+          name: "Michael Brown",
+          email: "michael.b@example.com",
+          role: "user",
+          status: "inactive",
+          phone: "1234567890",
+        },
+        {
+          id: 13,
+          name: "Michael Brown",
+          email: "michael.b@example.com",
+          role: "user",
+          status: "inactive",
+          phone: "1234567890",
+        },
+        {
+          id: 14,
+          name: "Michael Brown",
+          email: "michael.b@example.com",
+          role: "user",
+          status: "inactive",
           phone: "1234567890",
         },
       ],
