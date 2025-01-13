@@ -13,6 +13,13 @@ input {
 
 .form-container input:-internal-autofill-selected {
   background-color: #4e54c8 !important;
+  color: #94a3b8 !important;
+}
+
+input:-webkit-autofill {
+  box-shadow: 0 0 0px 1000px #4e54c8 inset !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  transition: -webkit-text-fill-color 0s;
 }
 
 .login-btn {

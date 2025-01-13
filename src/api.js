@@ -1,22 +1,63 @@
 import axios from "axios";
+import { getAccessToken } from "./utils";
 
-// need to change the api base url
-const API_BASE_URL = "https://api.example.com";
+const API_BASE_URL = "http://aberrationauto.com";
+
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      if (!error.config._retry) {
+        error.config._retry = true;
+        const refreshed = await refreshToken();
+
+        if (refreshed) {
+          error.config.headers["Authorization"] = `Bearer ${getAccessToken()}`;
+          return axiosInstance.request(error.config);
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+const refreshToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem("refreshToken");
+    const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
+      refresh: refreshToken,
+    });
+
+    let data = response.data;
+    if (data.access) {
+      localStorage.setItem("accessToken", data.access);
+      return true;
+    }
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    return false;
+  }
+};
 
 export const login = async (email, password) => {
-  if (API_BASE_URL === "https://api.example.com") {
-    return {
-      success: true,
-      token: "example_token",
-    };
-  }
-
   try {
-    const response = await axios.post(`${API_BASE_URL}/login`, {
+    const response = await axiosInstance.post(`${API_BASE_URL}/login/`, {
       email: email,
       password: password,
     });
-    return response.data;
+    let data = response.data;
+    if (data.access && data.refresh) {
+      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+      return true;
+    }
+    throw new Error("Login failed. Please try again.");
   } catch (error) {
     if (error.response) {
       throw new Error(error.response.data.message || "Login failed.");
@@ -27,61 +68,15 @@ export const login = async (email, password) => {
 };
 
 export const fetchDealerships = async (page = 1, query = "") => {
-  console.log("dealership list api called. query: ", query);
-  if (API_BASE_URL === "https://api.example.com") {
-    return {
-      success: true,
-      totalPages: 2,
-      dealerships: [
-        {
-          id: 1,
-          name: "Downey Nissan",
-          inventory_count: 10,
-          mtd_sold: 5,
-          new_additions: 2,
-        },
-        {
-          id: 2,
-          name: "Dealership 2",
-          inventory_count: 10,
-          mtd_sold: 5,
-          new_additions: 2,
-        },
-        {
-          id: 3,
-          name: "Dealership 3",
-          inventory_count: 10,
-          mtd_sold: 5,
-          new_additions: 2,
-        },
-        {
-          id: 4,
-          name: "Dealership 4",
-          inventory_count: 10,
-          mtd_sold: 5,
-          new_additions: 2,
-        },
-        // {
-        //   id: 5,
-        //   name: "Dealership 5",
-        //   inventory_count: 10,
-        //   mtd_sold: 5,
-        //   new_additions: 2,
-        // },
-        // {
-        //   id: 6,
-        //   name: "Dealership 6",
-        //   inventory_count: 10,
-        //   mtd_sold: 5,
-        //   new_additions: 2,
-        // },
-      ],
-    };
-  }
-
   try {
-    const response = await axios(
-      `${API_BASE_URL}/dealerships/?page=${page}&query=${query}`
+    console.log("dealer list: ", getAccessToken());
+    const response = await axiosInstance.get(
+      `${API_BASE_URL}/api/dealerships/?page=${page}&query=${query}`,
+      {
+        headers: {
+          Authorization: `Bearer ${getAccessToken()}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -101,35 +96,29 @@ export const fetchDealerDetails = async (
     dealerId,
     tabName,
     startDate,
-    endDate
+    endDate,
+    getAccessToken()
   );
-  if (API_BASE_URL === "https://api.example.com") {
-    let dummyData = {
-      year: "2022",
-      make: "Ferrari",
-      model: "F8 Tributo",
-      vin: "F8 Tributo",
-      trim: "Base",
-      color: "Red",
-      mileage: "1,200",
-      price: "$300,000",
-      lendingValue: "$275,000",
-      dateAdded: "1",
-    };
-    let data = [];
-    for (let i = 0; i < 30; i++) {
-      data.push(dummyData);
-    }
-    return {
-      success: true,
-      data: data,
-    };
+  let pageSuffix = "";
+  if (tabName === "inventory") {
+    pageSuffix = "api/vehicles";
+  } else if (tabName === "sold") {
+    pageSuffix = "api/sold-vehicles";
+  } else if (tabName === "added") {
+    pageSuffix = "api/added-vehicles";
   }
 
   try {
-    const response = await axios(
-      `${API_BASE_URL}/dealers/${dealerId}/${tabName}/?start_date=${startDate}&end_date=${endDate}`
+    const response = await axiosInstance(
+      `${API_BASE_URL}/${pageSuffix}?dealership_id=${dealerId}&start_date=${startDate}&end_date=${endDate}`,
+      {
+        headers: {
+          Authorization: `Bearer ${getAccessToken()}`,
+        },
+      }
     );
+    console.log("response: ", response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error fetching dealership details:", error);
@@ -173,9 +162,9 @@ export const handleExportDealerData = async (
   }
 };
 
-export const fetchUserList = async (query) => {
+export const fetchUserList = async (query, dummyData = true) => {
   console.log("user list api called");
-  if (API_BASE_URL === "https://api.example.com") {
+  if (dummyData) {
     return {
       success: true,
       data: [
@@ -305,16 +294,8 @@ export const fetchUserList = async (query) => {
 };
 
 export const createUser = async (user) => {
-  console.log("create user api called: ", user);
-  if (API_BASE_URL === "https://api.example.com") {
-    return {
-      success: true,
-      data: {},
-    };
-  }
-
   try {
-    const response = await axios.post(`${API_BASE_URL}/create-user/`, {
+    const response = await axios.post(`${API_BASE_URL}/api/add-user/`, {
       name: user.name,
       email: user.email,
       password: user.password,
@@ -330,23 +311,18 @@ export const createUser = async (user) => {
 };
 
 export const updateUser = async (userId, user) => {
-  console.log("update user api called. userId: ", userId, "details: ", user);
-  if (API_BASE_URL === "https://api.example.com") {
-    return {
-      success: true,
-      data: {},
-    };
-  }
-
   try {
-    const response = await axios.post(`${API_BASE_URL}/update-user/userId`, {
-      name: user.name,
-      email: user.email,
-      password: user.password,
-      role: user.role,
-      status: user.status,
-      phone: user.phone,
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/update-user/userId/`,
+      {
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        role: user.role,
+        status: user.status,
+        phone: user.phone,
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("failed to create user:", error);
@@ -356,15 +332,10 @@ export const updateUser = async (userId, user) => {
 
 export const deleteUser = async (userId) => {
   console.log("delete user api called. userId: ", userId);
-  if (API_BASE_URL === "https://api.example.com") {
-    return {
-      success: true,
-      data: {},
-    };
-  }
-
   try {
-    const response = await axios.delete(`${API_BASE_URL}/delete-user/userId`);
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/delete-user/userId`
+    );
     return response.data;
   } catch (error) {
     console.error("failed to delete user:", error);

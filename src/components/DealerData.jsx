@@ -8,6 +8,7 @@ const DealerData = ({ dealerName }) => {
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [dealerDetails, setDealerDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   let { dealerId, tabName } = useParams();
 
@@ -18,12 +19,12 @@ const DealerData = ({ dealerName }) => {
       startDate,
       endDate
     );
-    if (data?.success) {
-      setDealerDetails(data?.data);
-    }
+    setDealerDetails(data);
+    setIsLoading(false);
   }, [dealerId, tabName, startDate, endDate]);
 
   useEffect(() => {
+    setIsLoading(true);
     getDealershipDetails();
   }, [getDealershipDetails]);
 
@@ -32,7 +33,14 @@ const DealerData = ({ dealerName }) => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex flex-1">
           <h2 className="text-2xl font-bold">
-            Available Inventory: {dealerName}
+            {tabName === "inventory"
+              ? "Available Inventory"
+              : tabName === "sold"
+              ? "Sold Vehicles"
+              : tabName === "added"
+              ? "Added Vehicles"
+              : ""}
+            : {dealerName}
           </h2>
         </div>
         <div className="flex flex-1 justify-end space-x-4 items-center gap-4">
@@ -90,57 +98,87 @@ const DealerData = ({ dealerName }) => {
           </div>
         </div>
       </div>
-
-      <div className="relative">
-        {/* Static Table Header */}
-        <div className="overflow-hidden">
-          <table className="table-auto w-full text-left bg-gray-800 text-white rounded-md shadow-md">
-            <thead className="bg-gray-700 sticky top-0">
-              <tr>
-                <th className="px-4 py-2">Year</th>
-                <th className="px-4 py-2">Make</th>
-                <th className="px-4 py-2">Model</th>
-                <th className="px-4 py-2">VIN</th>
-                <th className="px-4 py-2">Trim</th>
-                <th className="px-4 py-2">Color</th>
-                <th className="px-4 py-2">Mileage</th>
-                <th className="px-4 py-2">Price</th>
-                <th className="px-4 py-2">Lending Value</th>
-                <th className="px-4 py-2">Date Added</th>
-                <th className="px-4 py-2">Days in Stock</th>
-              </tr>
-            </thead>
-          </table>
+      {isLoading ? (
+        <div className="flex h-[70%] w-full items-center justify-center">
+          <div
+            className="spinner-border w-[150px] h-[150px] text-[#4e54c8]"
+            role="status"
+          >
+            <span className="visually-hidden">Loading...</span>
+          </div>
         </div>
-
-        {/* Scrollable Table Body */}
-        <div className="overflow-y-auto max-h-[400px]">
-          <table className="table-auto w-full text-left bg-gray-800 text-white">
-            <tbody>
-              {dealerDetails?.map((item, index) => (
-                <tr
-                  key={index}
-                  className={`hover:bg-gray-700 ${
-                    index % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
-                  }`}
-                >
-                  <td className="px-4 py-2">{item.year}</td>
-                  <td className="px-4 py-2">{item.make}</td>
-                  <td className="px-4 py-2">{item.model}</td>
-                  <td className="px-4 py-2">{item.vin}</td>
-                  <td className="px-4 py-2">{item.trim}</td>
-                  <td className="px-4 py-2">{item.color}</td>
-                  <td className="px-4 py-2">{item.mileage}</td>
-                  <td className="px-4 py-2">{item.price}</td>
-                  <td className="px-4 py-2">{item.lendingValue}</td>
-                  <td className="px-4 py-2">{item.dateAdded}</td>
-                  <td className="px-4 py-2">{item.daysInStock}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      ) : (
+        <>
+          <div className="relative">
+            <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+              <table
+                className="table-auto w-full min-w-[1000px] text-left bg-gray-800 text-white rounded-md shadow-md"
+                style={{ tableLayout: "fixed" }}
+              >
+                <thead className="bg-gray-700 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-4 py-2 w-[90px]">Year</th>
+                    <th className="px-4 py-2 w-[140px]">Make</th>
+                    <th className="px-4 py-2 w-[120px]">Model</th>
+                    <th className="px-4 py-2 w-[240px]">VIN</th>
+                    <th className="px-4 py-2 w-[250px]">Trim</th>
+                    <th className="px-4 py-2 w-[150px]">Interior Color</th>
+                    <th className="px-4 py-2 w-[150px]">Exterior Color</th>
+                    <th className="px-4 py-2 w-[120px]">Mileage</th>
+                    <th className="px-4 py-2 w-[120px]">Price</th>
+                    <th className="px-4 py-2 w-[130px]">Date Added</th>
+                    <th className="px-4 py-2 w-[140px]">Days in Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dealerDetails?.map((item, index) => (
+                    <tr
+                      key={index}
+                      className={`hover:bg-gray-700 ${
+                        index % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
+                      }`}
+                    >
+                      <td className="px-4 py-2 break-words w-[90px]">
+                        {item.year}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[140px]">
+                        {item.make}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[120px]">
+                        {item.model}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[240px]">
+                        {item.vin}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[450px]">
+                        {item.trim}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[150px]">
+                        {item.interior_color}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[150px]">
+                        {item.exterior_color}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[120px]">
+                        {item.mileage}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[120px]">
+                        {item.price}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[130px]">
+                        {item.date_added}
+                      </td>
+                      <td className="px-4 py-2 break-words w-[140px]">
+                        {item.days_in_stock}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

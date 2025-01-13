@@ -37,13 +37,8 @@ const LoginPage = () => {
     }
 
     try {
-      const data = await login(email, password);
-      if (data.success) {
-        localStorage.setItem("authToken", data.token);
-        navigate("/dashboard");
-      } else {
-        setError(data.message || "Invalid credentials.");
-      }
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
