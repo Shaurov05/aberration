@@ -143,7 +143,7 @@ export const handleExportDealerData = async (
       }
     );
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       throw new Error("Failed to export the file.");
     }
 
