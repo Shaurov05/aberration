@@ -5,32 +5,73 @@ import { fetchDealerDetails, handleExportDealerData } from "../api";
 import { useParams } from "react-router-dom";
 
 const DealerData = ({ dealerName }) => {
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
+  const getFirstDayOfMonth = () => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  };
+
+  const getCurrentDate = () => new Date();
+
+  const [startDate, setStartDate] = useState(getFirstDayOfMonth());
+  const [endDate, setEndDate] = useState(getCurrentDate());
   const [dealerDetails, setDealerDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
 
   let { dealerId, tabName } = useParams();
 
-  const getDealershipDetails = useCallback(async () => {
-    const data = await fetchDealerDetails(
-      dealerId,
-      tabName,
-      startDate,
-      endDate
-    );
-    setDealerDetails(data);
-    setIsLoading(false);
-  }, [dealerId, tabName, startDate, endDate]);
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-  useEffect(() => {
-    setIsLoading(true);
-    getDealershipDetails();
-  }, [getDealershipDetails]);
+  const getDealershipDetails = useCallback(
+    async (dealerId, tabName, startDate, endDate, page) => {
+      setIsLoading(true);
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+
+      const data = await fetchDealerDetails(
+        dealerId,
+        tabName,
+        formattedStartDate,
+        formattedEndDate,
+        page
+      );
+      setDealerDetails(data?.data);
+      setHasNextPage(data?.has_next);
+      setIsLoading(false);
+    },
+    []
+  );
+
+  useEffect(
+    () => {
+      getDealershipDetails(dealerId, tabName, startDate, endDate, page);
+    },
+    // eslint-disable-next-line
+    [page]
+  );
+
+  const shouldShowDateFilterButton = () => {
+    return ["inventory", "sold"].includes(tabName);
+  };
+
+  const handleFilter = () => {
+    if (!startDate || !endDate) {
+      alert("Please select both start and end dates.");
+      return;
+    }
+    setPage(1);
+    getDealershipDetails(dealerId, tabName, startDate, endDate, page);
+  };
 
   return (
     <div className="flex-1 bg-[#1a2a6c] text-white p-6 w-[82%]">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 h-[10%]">
         <div className="flex flex-1">
           <h2 className="text-2xl font-bold">
             {tabName === "inventory"
@@ -44,54 +85,57 @@ const DealerData = ({ dealerName }) => {
           </h2>
         </div>
         <div className="flex flex-1 justify-end space-x-4 items-center gap-4">
-          <div className="h-[70px]">
-            <label className="block text-sm mb-1">Start Date:</label>
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="YYYY-MM-DD"
-              className="bg-gray-700 text-white  rounded-3xl px-3 py-2 w-[120px] text-sm"
-              popperClassName="custom-datepicker"
-            />
-          </div>
-          <div className="h-[70px]">
-            <label className="block text-sm mb-1">End Date:</label>
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => {
-                if (startDate && date < startDate) {
-                  alert("End date should be greater than start date");
-                  return;
-                }
-                setEndDate(date);
-              }}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="YYYY-MM-DD"
-              className="bg-gray-700 text-white rounded-3xl px-3 py-2 w-[120px] text-sm"
-              popperClassName="custom-datepicker"
-            />
-          </div>
-          <div className="h-[60px] flex items-end">
+          {shouldShowDateFilterButton() && (
+            <>
+              <div className="h-[70px]">
+                <label className="block text-sm mb-1">Start Date:</label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="YYYY-MM-DD"
+                  className="bg-gray-700 text-white rounded-3xl px-3 py-2 w-[120px] text-sm z-30"
+                  popperClassName="custom-datepicker"
+                />
+              </div>
+              <div className="h-[70px]">
+                <label className="block text-sm mb-1">End Date:</label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => {
+                    if (startDate && date < startDate) {
+                      alert("End date should be greater than start date");
+                      return;
+                    }
+                    setEndDate(date);
+                  }}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="YYYY-MM-DD"
+                  className="bg-gray-700 text-white rounded-3xl px-3 py-2 w-[120px] text-sm"
+                  popperClassName="custom-datepicker"
+                />
+              </div>
+              <div className="h-[60px] flex items-end">
+                <button
+                  onClick={handleFilter}
+                  className="bg-[#4e54c8] h-9 w-28 px-4 py-2 rounded-3xl hover:bg-[#7f83da] mb-1 text-lg leading-5"
+                >
+                  Filter
+                </button>
+              </div>
+            </>
+          )}
+
+          <div className="h-[60px] flex items-end justify-center cursor-not-allowed">
             <button
-              onClick={() => {
-                if (!startDate && !endDate) {
-                  alert("Please select start date.");
-                  return;
-                }
-                getDealershipDetails();
-              }}
-              className="bg-[#4e54c8] h-9 w-28 px-4 py-2 rounded-3xl hover:bg-[#7f83da] mb-1 text-lg leading-5"
-            >
-              Filter
-            </button>
-          </div>
-          <div className="h-[60px] flex items-end justify-center">
-            <button
-              className="bg-[#4e54c8] h-9 w-32 px-4 py-2 content-center rounded-3xl hover:bg-[#7f83da] mb-1 text-lg leading-5"
+              className={`bg-[#4e54c8] h-9 w-32 px-4 py-2 content-center cursor-pointer rounded-3xl hover:bg-[#7f83da] mb-1 text-lg leading-5 ${
+                "cursor-not-allowed" // dealerDetails?.length === 0 ? "cursor-not-allowed" : ""
+              }`}
               onClick={() => {
                 handleExportDealerData(dealerId, tabName, startDate, endDate);
               }}
+              // disabled={dealerDetails?.length === 0}
+              disabled={true}
             >
               Export Data
             </button>
@@ -110,7 +154,7 @@ const DealerData = ({ dealerName }) => {
       ) : (
         <>
           <div className="relative">
-            <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+            <div className="overflow-x-auto max-h-[470px] overflow-y-auto">
               <table
                 className="table-auto w-full min-w-[1000px] text-left bg-gray-800 text-white rounded-md shadow-md"
                 style={{ tableLayout: "fixed" }}
@@ -177,6 +221,29 @@ const DealerData = ({ dealerName }) => {
               </table>
             </div>
           </div>
+
+          {dealerDetails?.length > 0 && (
+            <div className="flex justify-center mt-4 space-x-4">
+              <button
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+                className={`px-4 py-2 rounded-3xl bg-[#4e54c8] hover:bg-[#7f83da] ${
+                  page === 1 ? "cursor-not-allowed" : " "
+                }`}
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage((prev) => prev + 1)}
+                disabled={!hasNextPage}
+                className={`px-4 py-2 rounded-3xl bg-[#4e54c8] hover:bg-[#7f83da] ${
+                  !hasNextPage ? "cursor-not-allowed" : " "
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>

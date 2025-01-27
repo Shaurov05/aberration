@@ -19,8 +19,8 @@ const UserList = ({ searchTerm = "" }) => {
 
   const getUsers = async () => {
     const data = await fetchUserList();
-    if (data?.success) {
-      setUsers(data?.data);
+    if (data) {
+      setUsers(data);
     }
   };
   useEffect(() => {

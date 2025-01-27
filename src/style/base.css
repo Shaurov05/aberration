@@ -11,3 +11,7 @@ body {
   outline: none;
   box-shadow: none;
 }
+
+.react-datepicker__tab-loop > div.react-datepicker-popper.custom-datepicker {
+  z-index: 20;
+}

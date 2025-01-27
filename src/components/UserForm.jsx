@@ -33,7 +33,6 @@ const UserForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted data:", selectedUser);
     if (!["add", "update"].includes(operation)) {
       alert("Invalid operation");
       return;
@@ -69,8 +68,6 @@ const UserForm = () => {
 
     navigate("/user-management");
   };
-
-  console.log("selectedUser?.role: ", selectedUser?.role);
 
   return (
     <div className="flex flex-col h-screen w-screen">

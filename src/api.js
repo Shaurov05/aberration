@@ -2,9 +2,15 @@ import axios from "axios";
 import { getAccessToken } from "./utils";
 
 const API_BASE_URL = "http://aberrationauto.com";
+// const API_BASE_URL =
+//   "https://e1bf-2001-4958-2fff-c901-b0c4-920f-fac0-6ef6.ngrok-free.app";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  // headers: {
+  //   // Add ngrok-skip-browser-warning header
+  //   "ngrok-skip-browser-warning": "69420",
+  // },
 });
 
 axiosInstance.interceptors.response.use(
@@ -75,6 +81,8 @@ export const fetchDealerships = async (page = 1, query = "") => {
       {
         headers: {
           Authorization: `Bearer ${getAccessToken()}`,
+          // "User-Agent": "CustomUserAgent",
+          // "ngrok-skip-browser-warning": "true",
         },
       }
     );
@@ -89,16 +97,9 @@ export const fetchDealerDetails = async (
   dealerId,
   tabName,
   startDate,
-  endDate
+  endDate,
+  page = 1
 ) => {
-  console.log(
-    "dealer details api called: ",
-    dealerId,
-    tabName,
-    startDate,
-    endDate,
-    getAccessToken()
-  );
   let pageSuffix = "";
   if (tabName === "inventory") {
     pageSuffix = "api/vehicles";
@@ -110,15 +111,13 @@ export const fetchDealerDetails = async (
 
   try {
     const response = await axiosInstance(
-      `${API_BASE_URL}/${pageSuffix}?dealership_id=${dealerId}&start_date=${startDate}&end_date=${endDate}`,
+      `${API_BASE_URL}/${pageSuffix}?dealership_id=${dealerId}&start_date=${startDate}&end_date=${endDate}&page=${page}`,
       {
         headers: {
           Authorization: `Bearer ${getAccessToken()}`,
         },
       }
     );
-    console.log("response: ", response.data);
-
     return response.data;
   } catch (error) {
     console.error("Error fetching dealership details:", error);
@@ -134,7 +133,7 @@ export const handleExportDealerData = async (
 ) => {
   try {
     const response = await fetch(
-      `https://your-api-endpoint.com/export/?dealerId=${dealerId}&tabName=${tabName}&startDate=${startDate}&endDate=${endDate}`,
+      `${API_BASE_URL}/export/?dealerId=${dealerId}&tabName=${tabName}&startDate=${startDate}&endDate=${endDate}`,
       {
         method: "GET",
         headers: {
@@ -162,130 +161,13 @@ export const handleExportDealerData = async (
   }
 };
 
-export const fetchUserList = async (query, dummyData = true) => {
-  console.log("user list api called");
-  if (dummyData) {
-    return {
-      success: true,
-      data: [
-        {
-          id: 1,
-          name: "Stephanie Johnson",
-          email: "stephanie.j@example.com",
-          role: "admin",
-          status: "active",
-          phone: "1234567890",
-        },
-        {
-          id: 2,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 3,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 4,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 5,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 6,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 7,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 8,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 9,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 10,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 11,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 12,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 13,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-        {
-          id: 14,
-          name: "Michael Brown",
-          email: "michael.b@example.com",
-          role: "user",
-          status: "inactive",
-          phone: "1234567890",
-        },
-      ],
-    };
-  }
-
+export const fetchUserList = async (query) => {
   try {
-    const response = await axios(`${API_BASE_URL}/users/query=${query}`);
+    const response = await axiosInstance.get(`${API_BASE_URL}/api/users/`, {
+      headers: {
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching user list:", error);
@@ -340,5 +222,25 @@ export const deleteUser = async (userId) => {
   } catch (error) {
     console.error("failed to delete user:", error);
     return false;
+  }
+};
+
+export const addFavoriteDealerships = async (dealerIds: Array) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/add-favorite-dealerships/`,
+      {
+        dealership_ids: dealerIds,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${getAccessToken()}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding favorite dealerships:", error);
+    return [];
   }
 };
