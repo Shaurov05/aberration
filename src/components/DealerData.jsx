@@ -41,20 +41,23 @@ const DealerData = ({ dealerName }) => {
         formattedEndDate,
         page
       );
-      setDealerDetails(data?.data);
-      setHasNextPage(data?.has_next);
+      setDealerDetails(data?.data || []);
+      setHasNextPage(data?.has_next || false);
       setIsLoading(false);
     },
     []
   );
 
-  useEffect(
-    () => {
-      getDealershipDetails(dealerId, tabName, startDate, endDate, page);
-    },
+  useEffect(() => {
+    setStartDate(getFirstDayOfMonth());
+    setEndDate(getCurrentDate());
+    setPage(1);
+  }, [tabName]);
+
+  useEffect(() => {
+    getDealershipDetails(dealerId, tabName, startDate, endDate, page);
     // eslint-disable-next-line
-    [page]
-  );
+  }, [page, tabName, dealerId]);
 
   const shouldShowDateFilterButton = () => {
     return ["inventory", "sold"].includes(tabName);
@@ -66,7 +69,7 @@ const DealerData = ({ dealerName }) => {
       return;
     }
     setPage(1);
-    getDealershipDetails(dealerId, tabName, startDate, endDate, page);
+    getDealershipDetails(dealerId, tabName, startDate, endDate, 1);
   };
 
   return (
