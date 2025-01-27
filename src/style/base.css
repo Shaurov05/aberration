@@ -15,3 +15,7 @@ body {
 .react-datepicker__tab-loop > div.react-datepicker-popper.custom-datepicker {
   z-index: 20;
 }
+
+#header-menu-dropdown {
+  transform: translate3d(-88px, 38px, 0px) !important;
+}
